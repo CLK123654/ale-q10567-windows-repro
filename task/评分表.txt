@@ -1,0 +1,85 @@
+总分100分。
+
+1. 输入合同与Chart结构
+分值：12分
+优先级：Gate项
+所属层级：L3输入数据导入与完整性层
+标准答案：完整读取README、发布合同、公共values、环境覆盖和Chart骨架；交付Chart的身份、目录及模板文件与合同一致。
+关键字段：`chart.name`、`chart.version`、`requiredTemplates`、`output/chart/billing-service`
+容差：路径、Chart身份和合同模板集合不允许偏差；模板内部辅助变量名可不同。
+失败边界：遗漏输入材料、改写合同、Chart目录错层、缺少合同要求的模板，或保留未完成占位内容。
+可观察证据：Chart.yaml、values文件、templates目录与发布合同的对应关系。
+客观硬性标准：交付Chart可由输入合同完整定位，模板职责覆盖合同中的全部对象。
+阈值：路径、身份和模板合同全部满足得满分；缺少任一核心输入或模板得0分，其余按可定位问题比例扣分。
+
+2. 对象身份与选择器闭合
+分值：14分
+优先级：高权重项
+所属层级：L7产物结构或Schema或专业对象层
+标准答案：两个环境都生成合同要求的Kubernetes对象；对象名称、namespace、环境标签随release和values变化，Service selector与Pod标签一致。
+关键字段：`kind`、`metadata.name`、`metadata.namespace`、`metadata.labels`、`spec.selector`
+容差：YAML标量引号和合法文档顺序可不同；解析后的对象身份与引用必须一致。
+失败边界：对象缺失或多出、环境串线、release未进入对象身份，或Service无法选择对应Pod。
+可观察证据：两份渲染清单中的对象清单、metadata、selector和Pod模板标签。
+客观硬性标准：每个环境的对象均可按kind和名称唯一定位，selector与Pod标签逐字段相等。
+阈值：所有对象身份和选择器闭合得满分；任一环境的核心对象不可定位得0分，其余按错误字段比例扣分。
+
+3. 敏感配置引用
+分值：18分
+优先级：Gate项
+所属层级：L6领域计算与专业规则层
+标准答案：合同中的每个敏感环境变量都通过当前环境Secret的`secretKeyRef`读取对应键；Chart不生成Secret对象，也不保留普通凭据值入口。
+关键字段：`env[].name`、`valueFrom.secretKeyRef.name`、`valueFrom.secretKeyRef.key`、`kind`
+容差：模板写法可不同；渲染后的环境变量、Secret名称和键必须与合同及当前环境覆盖一致。
+失败边界：敏感字段使用普通value、漏引用、键错误、两个环境串用Secret，或渲染Secret对象。
+可观察证据：公共values、Deployment模板和两份渲染清单中的环境变量来源。
+客观硬性标准：敏感变量集合与合同相等，所有引用都指向当前环境且渲染内容不含凭据值。
+阈值：全部敏感引用闭合得满分；发现普通值泄露、环境串用或Secret对象得0分，其余按缺失引用比例扣分。
+
+4. 配额ConfigMap与Deployment引用
+分值：14分
+优先级：高权重项
+所属层级：L5多源关联与字段一致性层
+标准答案：每个环境的ConfigMap包含合同要求的配额字段和审计开关，值来自对应环境覆盖；Deployment引用同环境ConfigMap。
+关键字段：`ConfigMap.data`、`Deployment.spec.template.spec.containers[].envFrom.configMapRef.name`
+容差：合法YAML标量样式可不同；解析后的键集合、值和引用名称不允许偏差。
+失败边界：配额字段缺失、审计开关混入错误口径、值未采用环境覆盖，或Deployment引用另一环境对象。
+可观察证据：合同字段、两个环境values、ConfigMap和Deployment的交叉对应。
+客观硬性标准：合同字段逐项可在ConfigMap中定位，且每个引用都指向同一环境的配额对象。
+阈值：字段、值和引用全部闭合得满分；跨环境引用得0分，其余按错误字段比例扣分。
+
+5. 镜像、副本、端口与资源覆盖
+分值：14分
+优先级：普通项
+所属层级：L5多源关联与字段一致性层
+标准答案：Deployment和Service采用公共values及当前环境覆盖中的镜像、副本、ServiceAccount、端口、CPU与内存配置。
+关键字段：`image`、`replicas`、`serviceAccountName`、`containerPort`、`Service.spec.ports`、`resources`
+容差：CPU和内存可使用语义等价的Kubernetes单位；换算后的资源值必须一致。
+失败边界：镜像标签退回默认值、环境覆盖未生效、端口不一致、ServiceAccount错绑，或资源单位无法解析。
+可观察证据：公共values、环境覆盖、Deployment和Service的对应字段。
+客观硬性标准：两份渲染清单中的运行配置均能回溯到当前输入值。
+阈值：所有运行配置一致得满分；镜像或环境资源采用错误来源得0分，其余按字段错误比例扣分。
+
+6. Helm渲染清单
+分值：14分
+优先级：高权重项
+所属层级：L2软件或工具操作层
+标准答案：使用Helm3对两个环境分别执行lint和template，并将当前Chart的结果保存到约定路径。
+关键字段：`output/rendered/dev.yaml`、`output/rendered/prod.yaml`、release、namespace、values文件
+容差：Helm补丁版本、Source注释和合法文档顺序可不同；解析后的对象语义必须一致。
+失败边界：用静态文本代替Helm渲染、release或namespace使用错误、渲染清单不是当前Chart结果，或任一环境lint失败。
+可观察证据：Helm命令参数、两份多文档YAML以及它们与交付Chart的字段对应。
+客观硬性标准：两份清单都能由交付Chart和对应环境values通过Helm生成。
+阈值：两个环境都通过Helm生成且语义正确得满分；任一环境未实际使用Helm得0分，其余按错误环境比例扣分。
+
+7. 环境差异报告
+分值：14分
+优先级：普通项
+所属层级：L9跨产物一致性与可追溯层
+标准答案：差异报告按合同中的`diffKeys`顺序列出两个环境的当前值、期望关系和来源，内容与values及渲染对象一致。
+关键字段：`check_key`、`dev_value`、`prod_value`、`expected_relation`、`source`
+容差：CSV行尾可为LF或CRLF；比例按输入文本或等值数值表达均可。
+失败边界：键或顺序错误、值来自旧报告、期望关系缺失、来源无法定位，或报告与渲染对象冲突。
+可观察证据：`render_diff.csv`与发布合同、环境values及两份渲染清单的交叉复算。
+客观硬性标准：报告每行都能由当前输入和Helm结果独立复算，且合同中的差异键不重不漏。
+阈值：所有差异项闭合得满分；遗漏合同项或使用预写固定值按错误行比例扣分，半数以上不可复算得0分。

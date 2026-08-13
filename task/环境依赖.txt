@@ -1,0 +1,11 @@
+操作系统： Windows11、macOS或主流64位Linux。
+
+软件：Helm3，用于解释Go模板、helper、values覆盖、release和namespace。
+
+代码执行依赖：Node.js20或更高版本，用于读取发布合同并生成环境差异报告；可使用PowerShell或系统终端运行命令。
+
+硬件：适合当前Chart和两份环境配置的通用多核CPU即可，不需要GPU。磁盘需容纳输入包、Helm渲染结果和差异报告。
+
+网络与权限：正式处理可离线完成，需要读取`input_data`并写入同级`output`目录，不需要访问Kubernetes集群、Chart仓库或镜像仓库。
+
+超时：每条Helm命令和完整处理流程都应设置有限超时，避免模板错误导致无限等待。

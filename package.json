@@ -1,0 +1,1 @@
+{"name":"ale-q10567-windows-repro","private":true,"type":"module","scripts":{"verify":"node verification/verify.mjs"}}

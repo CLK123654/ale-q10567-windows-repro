@@ -1,0 +1,11 @@
+你是计费平台的发布工程师。发票结算版本进入发布窗口前，起始Chart仍把敏感配置作为普通值写入Deployment，环境覆盖也没有稳定传递到对象名称、配额和资源设置。请依据输入包中的实际发布材料完成Chart，为发布负责人提供开发环境和生产环境的差异依据。
+
+先阅读`input_data/README.md`和`input_data/rules/billing_render_contract.yaml`，再检查`input_data/starter/chart/billing-service`中的Chart骨架、公共values以及两个环境覆盖文件。发布合同给出Chart身份、必需模板、敏感环境变量、Secret键、配额字段和差异关系，这些内容是本次处理的依据。
+
+在输入目录同级创建`output/chart/billing-service`，补全helper、ServiceAccount和ConfigMap模板，修复Deployment与Service。对象名称、namespace、环境标签和selector需要跟随release及环境覆盖。敏感环境变量只引用当前环境的Secret，Chart不得生成Secret对象，也不得在普通value中写入凭据。
+
+配额ConfigMap需要包含合同列出的配额字段和审计开关。Deployment应引用同环境的ConfigMap，并应用该环境的镜像、副本、ServiceAccount、端口、CPU和内存设置。所有字段都应来自公共values、环境覆盖或发布合同，不要在模板中按环境名称复制两套固定对象。
+
+使用Helm完成lint和template，分别写出`output/rendered/dev.yaml`与`output/rendered/prod.yaml`。根据两个环境当前使用的值生成`output/reports/render_diff.csv`，列为`check_key`、`dev_value`、`prod_value`、`expected_relation`、`source`，行顺序遵循发布合同中的`diffKeys`。
+
+最终交付完整Chart、两份渲染清单和差异报告。不得连接Kubernetes集群、镜像仓库或外部计费系统。

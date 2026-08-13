@@ -1,0 +1,7 @@
+阅读README和发布合同，确认公共values、环境覆盖与Chart骨架的职责。
+补全Chart模板，使对象名称、namespace、环境标签与release保持一致。
+将敏感环境变量改为当前环境Secret的`secretKeyRef`，移除普通凭据入口。
+建立环境专属配额ConfigMap，并让Deployment引用当前环境的配额与审计开关。
+修复Service与Pod的selector，应用当前环境的镜像、副本、端口和资源设置。
+使用Helm分别检查并渲染开发与生产环境。
+从两个环境的实际配置生成差异报告，保留发布合同规定的顺序和来源。

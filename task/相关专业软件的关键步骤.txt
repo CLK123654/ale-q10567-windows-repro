@@ -1,0 +1,8 @@
+1. 阅读发布合同和Chart骨架，确认Chart身份、模板职责和环境覆盖层级。
+2. 完成`_helpers.tpl`，使对象名称和公共标签由release与Chart信息生成。
+3. 创建ServiceAccount和配额ConfigMap模板，读取当前环境的配置值。
+4. 修改Deployment，用`secretKeyRef`绑定敏感环境变量，并引用同环境ConfigMap。
+5. 修正Service端口与selector，使其匹配Deployment的Pod标签。
+6. 对开发环境和生产环境分别执行`helm lint`。
+7. 使用对应的release、namespace和values执行`helm template`，保存两份渲染清单。
+8. 从两个环境当前使用的值生成差异报告，并核对每项关系和来源。
